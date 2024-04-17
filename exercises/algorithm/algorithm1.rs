@@ -2,13 +2,12 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 struct Node<T> {
     val: T,
     next: Option<NonNull<Node<T>>>,
@@ -22,20 +21,20 @@ impl<T> Node<T> {
         }
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 struct LinkedList<T> {
     length: u32,
     start: Option<NonNull<Node<T>>>,
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: Clone + std::cmp::PartialOrd> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: Clone + std::cmp::PartialOrd> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -71,12 +70,39 @@ impl<T> LinkedList<T> {
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut merge = LinkedList::new();
+        let mut a_node = list_a.start;
+        let mut b_node = list_b.start;
+
+        loop {
+
+            match (a_node, b_node) {
+                (Some(a), Some(b)) => {
+                    let a_val = unsafe { &(*a.as_ptr()).val };
+                    let b_val = unsafe { &(*b.as_ptr()).val };
+                    if a_val <= b_val {
+                        merge.add(a_val.clone());
+                        a_node = unsafe { (*a_node.unwrap().as_ptr()).next };
+                    } else {
+                        merge.add(b_val.clone());
+                        b_node = unsafe { (*b_node.unwrap().as_ptr()).next };
+                    }
+                },
+                (Some(a), None) => {
+                    let a_val = unsafe { &(*a.as_ptr()).val };
+                    merge.add(a_val.clone());
+                    a_node = unsafe { (*a_node.unwrap().as_ptr()).next };
+                },
+                (None, Some(b)) => {
+                    let b_val = unsafe { &(*b.as_ptr()).val };
+                    merge.add(b_val.clone());
+                    b_node = unsafe { (*b_node.unwrap().as_ptr()).next };
+                },
+                (None, None) => break,
+            }
+
         }
+        merge
 	}
 }
 
