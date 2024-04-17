@@ -70,6 +70,12 @@ impl<T: Clone + std::cmp::PartialOrd> LinkedList<T> {
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
+        if list_a.length == 0 {
+            return list_b;
+        }
+        if list_b.length == 0 {
+            return list_a;
+        }
         let mut merge = LinkedList::new();
         let mut a_node = list_a.start;
         let mut b_node = list_b.start;
